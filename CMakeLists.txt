@@ -81,7 +81,7 @@ add_link_options(-Wl,--print-memory-usage)
 add_link_options(-T ${LINKER_SCRIPT})
 add_link_options(-nostartfiles -Xlinker --gc-sections)
 add_link_options("-Wl,-Map,${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map" -Wl,--cref)
-add_link_options(--specs=nano.specs --specs=nosys.specs -lprintfloat)
+add_link_options(--specs=nano.specs --specs=nosys.specs)
 
 #生成elf设置
 add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
@@ -91,11 +91,8 @@ target_link_directories(${PROJECT_NAME}.elf PRIVATE
         ${CMAKE_SOURCE_DIR}/CH585Lib/StdPeriphDriver
 )
 target_link_libraries(${PROJECT_NAME}.elf
-        libISP585.a
-#        MESH
-#        CH58xBLE
-#        libwch_nfca_pcd.a
-#        libwch_nfca_crypto1.a
+        ISP585
+        printfloat
 )
 
 set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)

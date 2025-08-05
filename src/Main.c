@@ -137,7 +137,7 @@ int main() {
     UART1_SendByte(0xA0);
 
     while (1) {
-        mDelaymS(50);
+        mDelaymS(200);
         if (distance != 0) {
             printf("distance: %f\r\n", distance);
             UART1_SendByte(0xA0);
