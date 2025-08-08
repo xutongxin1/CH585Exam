@@ -21,4 +21,5 @@ void TJCSendAny(char *any);
 
 void TJCSendTxtWithFloat(char *name, float value);
 
+// void TJCSendTxtFormatted(char *name, const char *format, ...);
 #endif //TJCSCREEN_H_

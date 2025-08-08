@@ -139,6 +139,7 @@ int main() {
     while (1) {
         mDelaymS(200);
         if (distance != 0) {
+            TJCSendTxtWithFloat("data", distance);
             printf("distance: %f\r\n", distance);
             UART1_SendByte(0xA0);
             distance=0;

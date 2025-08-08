@@ -4,6 +4,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include "TJCScreen.h"
 
 #include "CH58x_common.h"
@@ -50,3 +51,20 @@ void TJCSendTxtWithFloat(char *name, const float value) {
     UART0_SendString((uint8_t *) tmp, strlen(tmp));
     TJCSendEnd();
 }
+// void TJCSendTxtFormatted(char *name, const char *format, ...) {
+//     char tmp[256] = {0};
+//     char value_str[200] = {0};
+//     va_list args;
+//
+//     // 处理可变参数，格式化value部分
+//     va_start(args, format);
+//     vsprintf(value_str, format, args);
+//     va_end(args);
+//
+//     // 组装最终的命令字符串
+//     sprintf(tmp, "%s.txt=\"%s\"", name, value_str);
+//
+//     // 发送数据
+//     UART0_SendString((uint8_t *) tmp, strlen(tmp));
+//     TJCSendEnd();
+// }
