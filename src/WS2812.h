@@ -28,7 +28,7 @@ extern __attribute__ ((aligned (4))) uint32_t color_buf[COLOR_BUFFER_LEN];
 #define FLASH_SLOW_ON_TIME      75   // 慢闪亮时间
 #define FLASH_SLOW_OFF_TIME     75   // 慢闪灭时间
 
-#define BREATHE_FAST_STEP       10    // 快速呼吸步进
+#define BREATHE_FAST_STEP       50    // 快速呼吸步进
 #define BREATHE_SLOW_STEP       7    // 慢速呼吸步进
 
 // LED模式定义

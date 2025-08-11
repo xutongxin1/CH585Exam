@@ -106,7 +106,7 @@ int median_filter(float input) {
 
 int min = 0, sec = 0;
 bool isSpeed2X = false;
-bool isBreath = false;
+bool isBreath = false, isStop = false;
 extern int TIM1_Times, TIM0_Times;
 int nowBeepHz = 1;
 /*********************************************************************
@@ -256,7 +256,7 @@ int main() {
                 if (present <= 25) {
                     x = 0;
                 } else {
-                    x = (present - 25) *8;
+                    x = (present - 25) * 8;
                 }
                 sprintf(tmp, "%d", x);
                 TJCSendAnyProperty("nowColor", "x", tmp);
@@ -290,6 +290,11 @@ int main() {
                 }
             } else if (nowKey == 3) {
             } else if (nowKey == 4) {
+                if (isStop) {
+                    isStop = false;
+                } else {
+                    isStop = true;
+                }
             }
         }
 

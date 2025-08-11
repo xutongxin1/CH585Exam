@@ -143,7 +143,7 @@ void UART3_IRQHandler(void) {
 }
 extern int min, sec;
 int TIM0_Times = 0, TIM1_Times = 0, TIM2_Times = 0;
-extern bool isSpeed2X, isBreath;
+extern bool isSpeed2X, isBreath,isStop;
 /*********************************************************************
  * @fn      TMR0_IRQHandler
  *
@@ -158,7 +158,10 @@ void TMR0_IRQHandler(void) // TMR0 定时中断
     if (TMR0_GetITFlag(TMR0_3_IT_CYC_END)) {
         TMR0_ClearITFlag(TMR0_3_IT_CYC_END); // 清除中断标志
         // UART1_SendByte (0xA0);
-        TIM0_Times++;
+        if (!isStop)
+        {
+            TIM0_Times++;
+        }
         if (isSpeed2X) {
             if (TIM0_Times == 5) {
                 if (sec == 59) {
