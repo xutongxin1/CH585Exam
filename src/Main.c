@@ -108,6 +108,7 @@ int min = 0, sec = 0;
 bool isSpeed2X = false;
 bool isBreath = false;
 extern int TIM1_Times;
+int nowBeepHz = 1;
 /*********************************************************************
  * @fn      main
  *
@@ -222,11 +223,14 @@ int main() {
                 TJCSendTxt("data", tmp);
                 float filtered_distance_cm = filtered_distance / 10.0f;
                 if (filtered_distance_cm > 25.f) {
-                    set_beep_Hz(1,true);
+                    nowBeepHz = 1;
+                    // set_beep_Hz(1,true);
                 } else if (filtered_distance_cm >= 15.f) {
-                    set_beep_Hz(2,true);
+                    nowBeepHz = 2;
+                    // set_beep_Hz(2,true);
                 } else if (filtered_distance_cm < 15) {
-                    set_beep_Hz(4,true);
+                    nowBeepHz = 4;
+                    // set_beep_Hz(4,true);
                 }
             }
             // UART1_SendByte (0xA0);

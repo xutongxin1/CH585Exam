@@ -1,3 +1,4 @@
+#include "beep.h"
 #include "CH58x_common.h"
 #include "WS2812.h"
 uint8_t Rx0Buff[100] = {0};
@@ -141,7 +142,7 @@ void UART3_IRQHandler(void) {
     }
 }
 extern int min, sec;
-int TIM0_Times = 0, TIM1_Times = 0;
+int TIM0_Times = 0, TIM1_Times = 0, TIM2_Times = 0;
 extern bool isSpeed2X, isBreath;
 /*********************************************************************
  * @fn      TMR0_IRQHandler
@@ -207,10 +208,47 @@ void TMR1_IRQHandler(void) // TMR0 定时中断
                 ws2812_set_led_hex(0, 0xff0000, LED_MODE_STATIC);
                 TIM1_Times = 0;
             }
-        }else {
-
+        } else {
         }
-        UART1_SendByte (0xA0);
+        UART1_SendByte(0xA0);
         ws2812_update();
+    }
+}
+int lastBeepHz = 1;
+extern int nowBeepHz;
+bool isBeepON = false;
+/*********************************************************************
+ * @fn      TMR2_IRQHandler
+ *
+ * @brief   TMR2中断函数
+ *
+ * @return  none
+ */
+__INTERRUPT
+__HIGH_CODE
+void TMR2_IRQHandler(void) // TMR0 定时中断
+{
+    if (TMR2_GetITFlag(TMR0_3_IT_CYC_END)) {
+        TMR2_ClearITFlag(TMR0_3_IT_CYC_END); // 清除中断标志
+        TIM2_Times++;
+        if (lastBeepHz != nowBeepHz) {
+            lastBeepHz = nowBeepHz;
+            TIM2_Times = 0;
+        } else {
+            set_beep_Hz(MID_DO,false);
+            if (TIM2_Times == 40 && nowBeepHz == 1) {
+                isBeepON = true;
+                set_beep_Hz(MID_DO,true);
+                TIM2_Times = 0;
+            } else if (TIM2_Times == 20 && nowBeepHz == 2) {
+                isBeepON = true;
+                set_beep_Hz(MID_DO,true);
+                TIM2_Times = 0;
+            } else if (TIM2_Times == 10 && nowBeepHz == 4) {
+                isBeepON = true;
+                set_beep_Hz(MID_DO,true);
+                TIM2_Times = 0;
+            }
+        }
     }
 }
