@@ -107,7 +107,7 @@ int median_filter(float input) {
 int min = 0, sec = 0;
 bool isSpeed2X = false;
 bool isBreath = false;
-extern int TIM1_Times;
+extern int TIM1_Times, TIM0_Times;
 int nowBeepHz = 1;
 /*********************************************************************
  * @fn      main
@@ -245,8 +245,10 @@ int main() {
             if (nowKey == 1) {
                 if (isSpeed2X) {
                     isSpeed2X = false;
+                    TIM0_Times = 0;
                 } else {
                     isSpeed2X = true;
+                    TIM0_Times = 0;
                 }
             } else if (nowKey == 2) {
                 if (isBreath) {
@@ -266,6 +268,7 @@ int main() {
         // oled
         sprintf(tmp, "2025    %02d:%02d", min, sec);
         OLED_Display_GB2312_string(0, 0, (uint8_t *) tmp);
+        sprintf(tmp, "%02d:%02d", min, sec);
         TJCSendTxt("time", tmp);
     }
 }
