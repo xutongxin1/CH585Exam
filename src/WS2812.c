@@ -305,6 +305,15 @@ static void handle_breathe_mode(uint16_t led_id, uint8_t step) {
         if (led->brightness + step >= 255) {
             led->brightness = 255;
             led->increasing = false;
+            if (led->r == 0xff) {
+                led->r = 0;
+                led->g = 0xff;
+                led->b = 0;
+            } else if (led->g == 0xff) {
+                led->g = 0;
+                led->b = 0;
+                led->r = 0xff;
+            }
         } else {
             led->brightness += step;
         }
@@ -312,15 +321,6 @@ static void handle_breathe_mode(uint16_t led_id, uint8_t step) {
         if (led->brightness <= step) {
             led->brightness = 0;
             led->increasing = true;
-            if (led->r == 0) {
-                led->r = 0xff;
-                led->g = 0;
-                led->b = 0;
-            } else if (led->g == 0) {
-                led->g = 0xff;
-                led->b = 0;
-                led->r = 0;
-            }
         } else {
             led->brightness -= step;
         }
