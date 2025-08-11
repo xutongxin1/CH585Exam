@@ -222,16 +222,44 @@ int main() {
                 OLED_Display_GB2312_string(0, 6, (uint8_t *) tmp);
                 TJCSendTxt("data", tmp);
                 float filtered_distance_cm = filtered_distance / 10.0f;
+                int filtered_distance_cm_int = filtered_distance_cm;
                 if (filtered_distance_cm > 25.f) {
+                    TJCSendAnyProperty("pic", "pco", "63488");
+                    sprintf(tmp, "R:%dcm", filtered_distance_cm_int);
+                    TJCSendTxt("nowColor", tmp);
                     nowBeepHz = 1;
                     // set_beep_Hz(1,true);
                 } else if (filtered_distance_cm >= 15.f) {
                     nowBeepHz = 2;
+                    TJCSendAnyProperty("pic", "pco", "6677");
+                    sprintf(tmp, "B:%dcm", filtered_distance_cm_int);
+                    TJCSendTxt("nowColor", tmp);
                     // set_beep_Hz(2,true);
-                } else if (filtered_distance_cm < 15) {
+                } else if (filtered_distance_cm < 15.f) {
                     nowBeepHz = 4;
+                    TJCSendAnyProperty("pic", "pco", "2016");
+                    sprintf(tmp, "G:%dcm", filtered_distance_cm_int);
+                    TJCSendTxt("nowColor", tmp);
                     // set_beep_Hz(4,true);
                 }
+                int present;
+                if (filtered_distance_cm <= 5.f) {
+                    present = 0;
+                } else if (filtered_distance_cm >= 50.f) {
+                    present = 100;
+                } else {
+                    present = (filtered_distance_cm - 5.f) / 45.0f * 100.0f;
+                }
+                sprintf(tmp, "%d", present);
+                TJCSendAnyProperty("pic", "val", tmp);
+                int x = 0;
+                if (present <= 25) {
+                    x = 0;
+                } else {
+                    x = (present - 25) *8;
+                }
+                sprintf(tmp, "%d", x);
+                TJCSendAnyProperty("nowColor", "x", tmp);
             }
             // UART1_SendByte (0xA0);
             distance = 0;
@@ -266,9 +294,9 @@ int main() {
         }
 
         // oled
-        sprintf(tmp, "2025    %02d:%02d", min, sec);
+        sprintf(tmp, "2025    %02d.%02d", min, sec);
         OLED_Display_GB2312_string(0, 0, (uint8_t *) tmp);
-        sprintf(tmp, "%02d:%02d", min, sec);
+        sprintf(tmp, "%02d.%02d", min, sec);
         TJCSendTxt("time", tmp);
     }
 }
