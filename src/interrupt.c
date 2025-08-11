@@ -1,4 +1,5 @@
 #include "CH58x_common.h"
+#include "WS2812.h"
 uint8_t Rx0Buff[100] = {0};
 uint8_t Rx1Buff[100] = {0};
 uint8_t Rx2Buff[100] = {0};
@@ -137,5 +138,41 @@ void UART3_IRQHandler(void) {
             break;
         default:
             break;
+    }
+}
+
+/*********************************************************************
+ * @fn      TMR0_IRQHandler
+ *
+ * @brief   TMR0中断函数
+ *
+ * @return  none
+ */
+__INTERRUPT
+__HIGH_CODE
+void TMR0_IRQHandler(void) // TMR0 定时中断
+{
+    if(TMR0_GetITFlag(TMR0_3_IT_CYC_END))
+    {
+        TMR0_ClearITFlag(TMR0_3_IT_CYC_END); // 清除中断标志
+        UART1_SendByte (0xA0);
+    }
+}
+
+/*********************************************************************
+ * @fn      TMR1_IRQHandler
+ *
+ * @brief   TMR1中断函数
+ *
+ * @return  none
+ */
+__INTERRUPT
+__HIGH_CODE
+void TMR1_IRQHandler(void) // TMR0 定时中断
+{
+    if(TMR1_GetITFlag(TMR0_3_IT_CYC_END))
+    {
+        TMR1_ClearITFlag(TMR0_3_IT_CYC_END); // 清除中断标志
+        ws2812_update();
     }
 }

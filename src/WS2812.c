@@ -24,8 +24,9 @@ void WS2812Init() {
     TMR3_DMACfg(ENABLE, (uint32_t) &color_buf[0], (uint32_t) &color_buf[COLOR_BUFFER_LEN], Mode_LOOP);
     TMR3_PWMEnable();
     TMR3_Enable();
-    wheelLed();
+    // wheelLed();
     ws2812_effects_init();
+    ws2812_set_led_hex(0,0x660000,LED_MODE_STATIC);
 }
 
 /// ÉèÖÃµÆµÄÑÕÉ«

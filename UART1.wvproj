@@ -72,10 +72,11 @@
 					"${project}/StdPeriphDriver/CH59x_pwm.c",
 					"${project}/StdPeriphDriver/CH59x_adc.c",
 					"${project}/CH585Lib",
-					"${project}/cmake-build-debug"
+					"${project}/cmake-build-debug",
+					"${project}/cmake-build-debug-mingw"
 				],
 				"optimization": {
-					"level": "size",
+					"level": "none",
 					"message_length": true,
 					"char_is_signed": true,
 					"function_sections": true,
