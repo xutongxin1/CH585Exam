@@ -140,7 +140,9 @@ void UART3_IRQHandler(void) {
             break;
     }
 }
-
+extern int min, sec;
+int TIM0_Times = 0, TIM1_Times = 0;
+extern bool isSpeed2X, isBreath;
 /*********************************************************************
  * @fn      TMR0_IRQHandler
  *
@@ -152,10 +154,31 @@ __INTERRUPT
 __HIGH_CODE
 void TMR0_IRQHandler(void) // TMR0 定时中断
 {
-    if(TMR0_GetITFlag(TMR0_3_IT_CYC_END))
-    {
+    if (TMR0_GetITFlag(TMR0_3_IT_CYC_END)) {
         TMR0_ClearITFlag(TMR0_3_IT_CYC_END); // 清除中断标志
-        UART1_SendByte (0xA0);
+        // UART1_SendByte (0xA0);
+        TIM0_Times++;
+        if (isSpeed2X) {
+            if (TIM0_Times == 5) {
+                if (sec == 59) {
+                    sec = 0;
+                    min++;
+                } else {
+                    sec++;
+                }
+                TIM0_Times = 0;
+            }
+        } else {
+            if (TIM0_Times == 10) {
+                if (sec == 59) {
+                    sec = 0;
+                    min++;
+                } else {
+                    sec++;
+                }
+                TIM0_Times = 0;
+            }
+        }
     }
 }
 
@@ -170,9 +193,24 @@ __INTERRUPT
 __HIGH_CODE
 void TMR1_IRQHandler(void) // TMR0 定时中断
 {
-    if(TMR1_GetITFlag(TMR0_3_IT_CYC_END))
-    {
+    if (TMR1_GetITFlag(TMR0_3_IT_CYC_END)) {
         TMR1_ClearITFlag(TMR0_3_IT_CYC_END); // 清除中断标志
+        TIM1_Times++;
+        if (!isBreath) {
+            if (TIM1_Times == 10) {
+                ws2812_set_led_hex(0, 0x00ff00, LED_MODE_STATIC);
+            } else if (TIM1_Times == 20) {
+                ws2812_set_led_hex(0, 0x0000ff, LED_MODE_STATIC);
+            } else if (TIM1_Times == 30) {
+                ws2812_set_led_hex(0, 0xffffff, LED_MODE_STATIC);
+            } else if (TIM1_Times == 40) {
+                ws2812_set_led_hex(0, 0xff0000, LED_MODE_STATIC);
+                TIM1_Times = 0;
+            }
+        }else {
+
+        }
+        UART1_SendByte (0xA0);
         ws2812_update();
     }
 }

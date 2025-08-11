@@ -8,7 +8,6 @@
 #include <time.h>
 #include <stdint.h>
 
-
 /* PWM Output Mode Definition */
 __attribute__ ((aligned (4))) uint32_t color_buf[COLOR_BUFFER_LEN] = {0};
 void wheelLed(void);
@@ -26,7 +25,7 @@ void WS2812Init() {
     TMR3_Enable();
     // wheelLed();
     ws2812_effects_init();
-    ws2812_set_led_hex(0,0x660000,LED_MODE_STATIC);
+    ws2812_set_led_hex(0, 0x660000, LED_MODE_STATIC);
 }
 
 /// 设置灯的颜色
@@ -180,7 +179,6 @@ static uint16_t num_leds = 0;
 
 // 初始化LED系统
 void ws2812_effects_init() {
-
     num_leds = LED_NUM;
 
     for (uint16_t i = 0; i < num_leds; i++) {
@@ -197,7 +195,8 @@ void ws2812_effects_init() {
 
 // 设置单个LED的颜色
 void ws2812_set_color(uint16_t led_id, uint8_t r, uint8_t g, uint8_t b) {
-    if (led_id >= num_leds) return;
+    if (led_id >= num_leds)
+        return;
 
     led_states[led_id].r = r;
     led_states[led_id].g = g;
@@ -206,7 +205,8 @@ void ws2812_set_color(uint16_t led_id, uint8_t r, uint8_t g, uint8_t b) {
 
 // 设置单个LED的颜色（HEX格式）
 void ws2812_set_color_hex(uint16_t led_id, uint32_t hex_color) {
-    if (led_id >= num_leds) return;
+    if (led_id >= num_leds)
+        return;
 
     led_states[led_id].r = (hex_color >> 16) & 0xFF;
     led_states[led_id].g = (hex_color >> 8) & 0xFF;
@@ -215,7 +215,8 @@ void ws2812_set_color_hex(uint16_t led_id, uint32_t hex_color) {
 
 // 设置单个LED的模式
 void ws2812_set_mode(uint16_t led_id, led_mode_t mode) {
-    if (led_id >= num_leds) return;
+    if (led_id >= num_leds)
+        return;
 
     led_states[led_id].mode = mode;
     led_states[led_id].timer = 0;
@@ -311,6 +312,15 @@ static void handle_breathe_mode(uint16_t led_id, uint8_t step) {
         if (led->brightness <= step) {
             led->brightness = 0;
             led->increasing = true;
+            if (led->r == 0) {
+                led->r = 0xff;
+                led->g = 0;
+                led->b = 0;
+            } else if (led->g == 0) {
+                led->g = 0xff;
+                led->b = 0;
+                led->r = 0;
+            }
         } else {
             led->brightness -= step;
         }
@@ -376,10 +386,15 @@ void ws2812_set_led_hex(uint16_t led_id, uint32_t hex_color, led_mode_t mode) {
 
 // 获取LED当前状态信息
 void ws2812_get_led_state(uint16_t led_id, uint8_t *r, uint8_t *g, uint8_t *b, led_mode_t *mode) {
-    if (led_id >= num_leds) return;
+    if (led_id >= num_leds)
+        return;
 
-    if (r) *r = led_states[led_id].r;
-    if (g) *g = led_states[led_id].g;
-    if (b) *b = led_states[led_id].b;
-    if (mode) *mode = led_states[led_id].mode;
+    if (r)
+        *r = led_states[led_id].r;
+    if (g)
+        *g = led_states[led_id].g;
+    if (b)
+        *b = led_states[led_id].b;
+    if (mode)
+        *mode = led_states[led_id].mode;
 }

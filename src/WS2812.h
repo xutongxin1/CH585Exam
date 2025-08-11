@@ -28,8 +28,8 @@ extern __attribute__ ((aligned (4))) uint32_t color_buf[COLOR_BUFFER_LEN];
 #define FLASH_SLOW_ON_TIME      75   // 慢闪亮时间
 #define FLASH_SLOW_OFF_TIME     75   // 慢闪灭时间
 
-#define BREATHE_FAST_STEP       3    // 快速呼吸步进
-#define BREATHE_SLOW_STEP       1    // 慢速呼吸步进
+#define BREATHE_FAST_STEP       10    // 快速呼吸步进
+#define BREATHE_SLOW_STEP       7    // 慢速呼吸步进
 
 // LED模式定义
 typedef enum {
@@ -66,4 +66,5 @@ void ws2812_set_led_hex(uint16_t led_id, uint32_t hex_color, led_mode_t mode);
 void ws2812_set_led(uint16_t led_id, uint8_t r, uint8_t g, uint8_t b, led_mode_t mode);
 void ws2812_set_all_color(uint8_t r, uint8_t g, uint8_t b);
 void ws2812_set_all_mode(led_mode_t mode);
+void ws2812_get_led_state(uint16_t led_id, uint8_t *r, uint8_t *g, uint8_t *b, led_mode_t *mode);
 #endif //WS2812_H

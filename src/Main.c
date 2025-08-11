@@ -26,25 +26,25 @@ extern float distance;
 
 uint8_t ScanKey() {
     if (B1 == 0) {
-        mDelaymS (10);
+        mDelaymS(10);
         if (B1 == 0) {
             return 1;
         }
     }
     if (B2 == 0) {
-        mDelaymS (10);
+        mDelaymS(10);
         if (B2 == 0) {
             return 2;
         }
     }
     if (B3 == 0) {
-        mDelaymS (10);
+        mDelaymS(10);
         if (B3 == 0) {
             return 3;
         }
     }
     if (B4 == 0) {
-        mDelaymS (10);
+        mDelaymS(10);
         if (B4 == 0) {
             return 4;
         }
@@ -61,7 +61,7 @@ float filtered_distance = 0.0;
 static float sample_buffer[5] = {0};
 static int sample_count = 0;
 
-int median_filter (float input) {
+int median_filter(float input) {
     // 存储输入数据到缓冲区
     sample_buffer[sample_count] = input;
     sample_count++;
@@ -98,12 +98,16 @@ int median_filter (float input) {
         // 重置计数器，准备下一轮采样
         sample_count = 0;
 
-        return 1;  // 表示已完成一次滤波
+        return 1; // 表示已完成一次滤波
     }
 
-    return 0;  // 表示还在收集数据
+    return 0; // 表示还在收集数据
 }
 
+int min = 0, sec = 0;
+bool isSpeed2X = false;
+bool isBreath = false;
+extern int TIM1_Times;
 /*********************************************************************
  * @fn      main
  *
@@ -114,101 +118,115 @@ int median_filter (float input) {
 int main() {
     uint8_t len;
 
-    HSECFG_Capacitance (HSECap_18p);
-    SetSysClock (CLK_SOURCE_HSE_PLL_78MHz);
+    HSECFG_Capacitance(HSECap_18p);
+    SetSysClock(CLK_SOURCE_HSE_PLL_78MHz);
 
     // uart0串口屏
-    GPIOB_SetBits (GPIO_Pin_7);
-    GPIOB_ModeCfg (GPIO_Pin_4, GPIO_ModeIN_PU);       // RXD-配置上拉输入
-    GPIOB_ModeCfg (GPIO_Pin_7, GPIO_ModeOut_PP_5mA);  // TXD-配置推挽输出，注意先让IO口输出高电平
+    GPIOB_SetBits(GPIO_Pin_7);
+    GPIOB_ModeCfg(GPIO_Pin_4, GPIO_ModeIN_PU); // RXD-配置上拉输入
+    GPIOB_ModeCfg(GPIO_Pin_7, GPIO_ModeOut_PP_5mA); // TXD-配置推挽输出，注意先让IO口输出高电平
     UART0_DefInit();
-    UART0_ByteTrigCfg (UART_7BYTE_TRIG);
-    UART0_INTCfg (ENABLE, RB_IER_RECV_RDY | RB_IER_LINE_STAT);
-    PFIC_EnableIRQ (UART0_IRQn);
+    UART0_ByteTrigCfg(UART_7BYTE_TRIG);
+    UART0_INTCfg(ENABLE, RB_IER_RECV_RDY | RB_IER_LINE_STAT);
+    PFIC_EnableIRQ(UART0_IRQn);
 
     // uart1超声波
-    GPIOB_SetBits (GPIO_Pin_13);
-    GPIOPinRemap (ENABLE, RB_PIN_UART1);
-    GPIOB_ModeCfg (GPIO_Pin_12, GPIO_ModeIN_PU);       // RXD-配置上拉输入
-    GPIOB_ModeCfg (GPIO_Pin_13, GPIO_ModeOut_PP_5mA);  // TXD-配置推挽输出，注意先让IO口输出高电平
+    GPIOB_SetBits(GPIO_Pin_13);
+    GPIOPinRemap(ENABLE, RB_PIN_UART1);
+    GPIOB_ModeCfg(GPIO_Pin_12, GPIO_ModeIN_PU); // RXD-配置上拉输入
+    GPIOB_ModeCfg(GPIO_Pin_13, GPIO_ModeOut_PP_5mA); // TXD-配置推挽输出，注意先让IO口输出高电平
     UART1_DefInit();
-    UART1_ByteTrigCfg (UART_7BYTE_TRIG);
-    UART1_INTCfg (ENABLE, RB_IER_RECV_RDY | RB_IER_LINE_STAT);
-    PFIC_EnableIRQ (UART1_IRQn);
+    UART1_ByteTrigCfg(UART_7BYTE_TRIG);
+    UART1_INTCfg(ENABLE, RB_IER_RECV_RDY | RB_IER_LINE_STAT);
+    PFIC_EnableIRQ(UART1_IRQn);
 
     // uart2接口2 printf
-    GPIOA_SetBits (GPIO_Pin_7);
-    GPIOA_ModeCfg (GPIO_Pin_6, GPIO_ModeIN_PU);       // RXD-配置上拉输入
-    GPIOA_ModeCfg (GPIO_Pin_7, GPIO_ModeOut_PP_5mA);  // TXD-配置推挽输出，注意先让IO口输出高电平
+    GPIOA_SetBits(GPIO_Pin_7);
+    GPIOA_ModeCfg(GPIO_Pin_6, GPIO_ModeIN_PU); // RXD-配置上拉输入
+    GPIOA_ModeCfg(GPIO_Pin_7, GPIO_ModeOut_PP_5mA); // TXD-配置推挽输出，注意先让IO口输出高电平
     UART2_DefInit();
-    UART2_ByteTrigCfg (UART_7BYTE_TRIG);
-    UART2_INTCfg (ENABLE, RB_IER_RECV_RDY | RB_IER_LINE_STAT);
-    PFIC_EnableIRQ (UART2_IRQn);
+    UART2_ByteTrigCfg(UART_7BYTE_TRIG);
+    UART2_INTCfg(ENABLE, RB_IER_RECV_RDY | RB_IER_LINE_STAT);
+    PFIC_EnableIRQ(UART2_IRQn);
 
     // uart3接口3
-    GPIOB_SetBits (GPIO_Pin_21);
-    GPIOPinRemap (ENABLE, RB_PIN_UART3);
-    GPIOB_ModeCfg (GPIO_Pin_20, GPIO_ModeIN_PU);       // RXD-配置上拉输入
-    GPIOB_ModeCfg (GPIO_Pin_21, GPIO_ModeOut_PP_5mA);  // TXD-配置推挽输出，注意先让IO口输出高电平
+    GPIOB_SetBits(GPIO_Pin_21);
+    GPIOPinRemap(ENABLE, RB_PIN_UART3);
+    GPIOB_ModeCfg(GPIO_Pin_20, GPIO_ModeIN_PU); // RXD-配置上拉输入
+    GPIOB_ModeCfg(GPIO_Pin_21, GPIO_ModeOut_PP_5mA); // TXD-配置推挽输出，注意先让IO口输出高电平
     UART3_DefInit();
-    UART3_ByteTrigCfg (UART_7BYTE_TRIG);
-    UART3_INTCfg (ENABLE, RB_IER_RECV_RDY | RB_IER_LINE_STAT);
-    PFIC_EnableIRQ (UART3_IRQn);
+    UART3_ByteTrigCfg(UART_7BYTE_TRIG);
+    UART3_INTCfg(ENABLE, RB_IER_RECV_RDY | RB_IER_LINE_STAT);
+    PFIC_EnableIRQ(UART3_IRQn);
 
-    UART2_SendString (TxBuff, sizeof (TxBuff));
-    UART3_SendString (TxBuff, sizeof (TxBuff));
-    printf ("xtxChino!\r\n");
+    UART2_SendString(TxBuff, sizeof (TxBuff));
+    UART3_SendString(TxBuff, sizeof (TxBuff));
+    printf("xtxChino!\r\n");
     TJCScreenInit();
-    TJCSendTxt ("data", "Hello");
 
     // OLED
     OLED_Init();
-    OLED_ColorTurn (0);    // 0正常显示，1 反色显示
-    OLED_DisplayTurn (0);  // 0正常显示 1 屏幕翻转显示
+    OLED_ColorTurn(0); // 0正常显示，1 反色显示
+    OLED_DisplayTurn(0); // 0正常显示 1 屏幕翻转显示
 
     // Beep
-    GPIOA_ModeCfg (GPIO_Pin_12, GPIO_ModeOut_PP_5mA);  // PA12 - PWM4
-    PWMX_CLKCfg (78);                                  // 分下来就是1M了
-    set_beep_Hz (MID_DO, false);
+    GPIOA_ModeCfg(GPIO_Pin_12, GPIO_ModeOut_PP_5mA); // PA12 - PWM4
+    PWMX_CLKCfg(78); // 分下来就是1M了
+    set_beep_Hz(MID_DO, false);
 
     // RGB
-    GPIOB_ResetBits (GPIO_Pin_0);
-    GPIOB_ResetBits (GPIO_Pin_1);
-    GPIOB_ResetBits (GPIO_Pin_2);
-    GPIOB_ModeCfg (GPIO_Pin_0, GPIO_ModeOut_PP_5mA);
-    GPIOB_ModeCfg (GPIO_Pin_1, GPIO_ModeOut_PP_5mA);
-    GPIOB_ModeCfg (GPIO_Pin_2, GPIO_ModeOut_PP_5mA);
+    GPIOB_ResetBits(GPIO_Pin_0);
+    GPIOB_ResetBits(GPIO_Pin_1);
+    GPIOB_ResetBits(GPIO_Pin_2);
+    GPIOB_ModeCfg(GPIO_Pin_0, GPIO_ModeOut_PP_5mA);
+    GPIOB_ModeCfg(GPIO_Pin_1, GPIO_ModeOut_PP_5mA);
+    GPIOB_ModeCfg(GPIO_Pin_2, GPIO_ModeOut_PP_5mA);
 
     // key
-    GPIOB_ModeCfg (GPIO_Pin_8, GPIO_ModeIN_PU);
-    GPIOB_ModeCfg (GPIO_Pin_9, GPIO_ModeIN_PU);
-    GPIOB_ModeCfg (GPIO_Pin_17, GPIO_ModeIN_PU);
-    GPIOB_ModeCfg (GPIO_Pin_16, GPIO_ModeIN_PU);
+    GPIOB_ModeCfg(GPIO_Pin_8, GPIO_ModeIN_PU);
+    GPIOB_ModeCfg(GPIO_Pin_9, GPIO_ModeIN_PU);
+    GPIOB_ModeCfg(GPIO_Pin_17, GPIO_ModeIN_PU);
+    GPIOB_ModeCfg(GPIO_Pin_16, GPIO_ModeIN_PU);
 
     // ws2812
     WS2812Init();
 
     // TMR0
-    TMR0_TimerInit (FREQ_SYS / 100);  // 设置定时时间 100ms
-    PFIC_EnableIRQ (TMR0_IRQn);
+    //计时
+    TMR0_TimerInit(FREQ_SYS / 10); // 设置定时时间 100ms
+    TMR0_ITCfg(ENABLE, TMR0_3_IT_CYC_END);
+    PFIC_EnableIRQ(TMR0_IRQn);
 
-    TMR1_TimerInit (FREQ_SYS / 100);  // 设置定时时间 100ms
-    TMR1_ITCfg (ENABLE, TMR0_3_IT_CYC_END);
-    PFIC_EnableIRQ (TMR1_IRQn);
+    //灯
+    TMR1_TimerInit(FREQ_SYS / 10); // 设置定时时间 100ms
+    TMR1_ITCfg(ENABLE, TMR0_3_IT_CYC_END);
+    PFIC_EnableIRQ(TMR1_IRQn);
 
-    set_led (LED_RED, true);
-    set_led (LED_GREEN, false);
-    set_led (LED_BLUE, false);
+    TMR2_TimerInit(FREQ_SYS / 40);
+    TMR2_ITCfg(ENABLE, TMR0_3_IT_CYC_END);
+    PFIC_EnableIRQ(TMR2_IRQn);
+
+    set_led(LED_RED, false);
+    set_led(LED_GREEN, false);
+    set_led(LED_BLUE, false);
+
+    OLED_Display_GB2312_string(0, 2, (uint8_t *) "沁恒赛道能力测评");
+    OLED_Display_GB2312_string(0, 4, (uint8_t *) "当前距离：");
     char tmp[20] = {0};
     while (1) {
         // mDelaymS (200);
         if (distance != 0) {
-            if (median_filter (distance)) {
-                sprintf (tmp, "%.02fcm", filtered_distance);
-                TJCSendTxt ("data", tmp);
-                // printf("distance: %f\r\n", filtered_distance);
-                if (isWork) {
-                    distance_to_beep (filtered_distance);
+            if (median_filter(distance)) {
+                sprintf(tmp, "%.02fmm", filtered_distance);
+                OLED_Display_GB2312_string(0, 6, (uint8_t *) tmp);
+                TJCSendTxt("data", tmp);
+                float filtered_distance_cm = filtered_distance / 10.0f;
+                if (filtered_distance_cm > 25.f) {
+                    set_beep_Hz(1,true);
+                } else if (filtered_distance_cm >= 15.f) {
+                    set_beep_Hz(2,true);
+                } else if (filtered_distance_cm < 15) {
+                    set_beep_Hz(4,true);
                 }
             }
             // UART1_SendByte (0xA0);
@@ -219,39 +237,31 @@ int main() {
         nowKey = ScanKey();
         if (nowKey != lastKey) {
             lastKey = nowKey;
-            printf ("nowKey = %d\r\n", nowKey);
+            printf("nowKey = %d\r\n", nowKey);
             if (nowKey == 1) {
-                if (isWork) {
-                    isWork = false;
-                    TJCSendTxt ("state", "就绪");
-                    TMR0_ITCfg (DISABLE, TMR0_3_IT_CYC_END);
-                    set_beep_Hz (0, false);
-                    set_led (LED_RED, true);
-                    set_led (LED_GREEN, false);
-                    ws2812_set_led_hex (0, 0x660000, LED_MODE_STATIC);
+                if (isSpeed2X) {
+                    isSpeed2X = false;
                 } else {
-                    isWork = true;
-                    TJCSendTxt ("state", "测量中");
-                    UART1_SendByte (0xA0);
-                    TMR0_ITCfg (ENABLE, TMR0_3_IT_CYC_END);
-                    set_led (LED_RED, false);
-                    set_led (LED_GREEN, true);
-                    ws2812_set_led_hex (0, 0x000066, LED_MODE_BREATHE_FAST);
+                    isSpeed2X = true;
                 }
-                OLED_Clear();
             } else if (nowKey == 2) {
+                if (isBreath) {
+                    TIM1_Times = 0;
+                    ws2812_set_led_hex(0, 0xff0000, LED_MODE_STATIC);
+                    isBreath = false;
+                } else {
+                    TIM1_Times = 0;
+                    ws2812_set_led_hex(0, 0xff0000, LED_MODE_BREATHE_SLOW);
+                    isBreath = true;
+                }
             } else if (nowKey == 3) {
             } else if (nowKey == 4) {
             }
         }
 
         // oled
-        if (isWork) {
-            OLED_Display_GB2312_string (0, 0, (uint8_t *)"测距结果为："); /*在第1页，第1列，显示一串16x16点阵汉字或8x16的ASCII字*/
-            sprintf (tmp, "%.02fcm", filtered_distance);
-            OLED_Display_GB2312_string (0, 2, (uint8_t *)tmp);
-        } else {
-            OLED_Display_GB2312_string (0, 0, (uint8_t *)"未启动测距");
-        }
+        sprintf(tmp, "2025    %02d:%02d", min, sec);
+        OLED_Display_GB2312_string(0, 0, (uint8_t *) tmp);
+        TJCSendTxt("time", tmp);
     }
 }
